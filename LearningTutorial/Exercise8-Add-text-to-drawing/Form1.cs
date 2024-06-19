@@ -1,22 +1,40 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Windows.Forms;
 
 using Tekla.Structures;
+using Tekla.Structures.Catalogs;
+using Tekla.Structures.Dialog;
+using Tekla.Structures.Dialog.UIControls;
+using Tekla.Structures.Drawing;
 using Tekla.Structures.Model;
 using Tekla.Structures.Geometry3d;
+using TSD = Tekla.Structures.Datatype;
+
+using Connection=Tekla.Structures.Model.Connection;
+using ModelObject=Tekla.Structures.Model.ModelObject;
+using Polygon=Tekla.Structures.Model.Polygon;
+using View=Tekla.Structures.Drawing.View;
 
 namespace Exercise
 {
-    public partial class Form4 : Form
+    public partial class Form1 : ApplicationFormBase
     {
-        public Form4()
+        public Form1()
         {
             InitializeComponent();
+            base.InitializeForm();
             FootingSize.Text = "1500";
             MyModel = new Model();
+            SteelMaterials = new List<MaterialItem>();
+
+            MyDrawingHandler = new DrawingHandler();
         }
 
         private readonly Model MyModel;
+        private readonly List<MaterialItem> SteelMaterials;
+        private readonly DrawingHandler MyDrawingHandler;
 
         /// <summary>
         /// Callback function to create objects on corrent places.
@@ -75,8 +93,8 @@ namespace Exercise
                             if(BeamChildren.Current is Reinforcement)
                             {
                                 HasRebars = true;
-                            }
-                        }
+                    }
+                }
 
                         if (HasRebars)
                         {
@@ -115,7 +133,7 @@ namespace Exercise
             RebarPolygon1.Points.Add(new Point(PositionX - MyFootingSize / 2.0, PositionY + MyFootingSize / 2.0, 0));
             RebarPolygon1.Points.Add(new Point(PositionX - MyFootingSize / 2.0, PositionY - MyFootingSize / 2.0, 0));
             Rebar.Polygons.Add(RebarPolygon1);
-            
+
             //or calculate by rebar's solid's Axis Aligned Bounding Box
             //Rebar.Polygons.Add(GetPolygonBySolidsAABB(PadFooting as Beam));
 
@@ -132,10 +150,14 @@ namespace Exercise
             Rebar.StartPointOffsetValue = 20.0;
             Rebar.Class = 3;
             Rebar.Name = "FootingRebar";
-            Rebar.Grade = "A500HW";
-            Rebar.Size = "12";
+            Rebar.Grade = GradeTextBox.Text;
+            Rebar.Size = SizeTextBox.Text;
+            
+            char[] Separator = {' '};
+            string[] Radiuses = BendingRadiusTextBox.Text.Split(Separator, StringSplitOptions.RemoveEmptyEntries);
+            foreach(string Item in Radiuses)
+                Rebar.RadiusValues.Add(Convert.ToDouble(Item));
 
-            Rebar.RadiusValues.Add(40.0);
             Rebar.SpacingType = BaseRebarGroup.RebarGroupSpacingTypeEnum.SPACING_TYPE_TARGET_SPACE;
             Rebar.Spacings.Add(100.0);
             Rebar.ExcludeType = BaseRebarGroup.ExcludeTypeEnum.EXCLUDE_TYPE_BOTH;
@@ -152,9 +174,10 @@ namespace Exercise
 
             if (!Rebar.Insert())
             {
-                Console.WriteLine("Inserting rebar failed.");
+                Console.WriteLine("Inserting of rebar failed.");
             }
         }
+
 
         /// <summary>
         /// Calculate polygon for rebar group by solid of InputObject.
@@ -162,7 +185,7 @@ namespace Exercise
         /// </summary>
         /// <param name="InputObject"></param>
         /// <returns></returns>
-        private Polygon GetPolygonBySolidsAABB(Part InputObject)
+        private Polygon GetPolygonBySolidsAABB(Tekla.Structures.Model.Part InputObject)
         {
             Polygon Result = new Polygon();
 
@@ -193,9 +216,9 @@ namespace Exercise
         /// <param name="PositionY">Y-coordination of the position</param>
         private void CreateFootingAndColumn(double PositionX, double PositionY)
         {
-            Beam PadFooting = CreatePadFooting(PositionX, PositionY, double.Parse(FootingSize.Text));
-            Beam Column = CreateColumn(PositionX, PositionY);
-            CreateBasePlate(Column);  
+            ModelObject PadFooting = CreatePadFooting(PositionX, PositionY, double.Parse(FootingSize.Text));
+            ModelObject Column = CreateColumn(PositionX, PositionY);
+            CreateBasePlate(Column, PadFooting);
         }
 
         /// <summary>
@@ -206,13 +229,13 @@ namespace Exercise
         /// <param name="PositionY">Y-coordination of the position</param>
         /// <param name="FootingSize">Size of the footing: FootingSize*FootingSize for profile</param>
         /// <returns></returns>
-        private static Beam CreatePadFooting(double PositionX, double PositionY, double FootingSize)
+        private static ModelObject CreatePadFooting(double PositionX, double PositionY, double FootingSize)
         {
             Beam PadFooting = new Beam();
 
             PadFooting.Name = "FOOTING";
             PadFooting.Profile.ProfileString = FootingSize + "*" + FootingSize; //"1500*1500";
-            PadFooting.Material.MaterialString = "C50/60";
+            PadFooting.Material.MaterialString = "K30-2";
             PadFooting.Class = "8";
             PadFooting.StartPoint.X = PositionX;
             PadFooting.StartPoint.Y = PositionY;
@@ -232,19 +255,19 @@ namespace Exercise
         }
 
         /// <summary>
-        /// Method that creates a column to given position and returns the created column.
-        /// The created column is recognized as beam in Tekla Structures.
+        ///  Method that creates a column to given position and returns the created column
+        /// The created pad footing is recognized as beam in Tekla Structures.
         /// </summary>
         /// <param name="PositionX">X-coordination of the position</param>
         /// <param name="PositionY">Y-coordination of the position</param>
         /// <returns></returns>
-        private static Beam CreateColumn(double PositionX, double PositionY)
+        private ModelObject CreateColumn(double PositionX, double PositionY)
         {
             Beam Column = new Beam();
 
             Column.Name = "COLUMN";
-            Column.Profile.ProfileString = "HEA300";
-            Column.Material.MaterialString = "S235JR";
+            Column.Profile.ProfileString = ColumnsProfileTextBox.Text;
+            Column.Material.MaterialString = ColumnsMaterialTextBox.Text;
             Column.Class = "2";
             Column.StartPoint.X = PositionX;
             Column.StartPoint.Y = PositionY;
@@ -264,26 +287,180 @@ namespace Exercise
         }
 
         /// <summary>
-        /// Method that creates base plate detail (1014).
+        /// Method that creates connection (1004) between two given objects
         /// </summary>
         /// <param name="PrimaryObject"></param>
-        private static void CreateBasePlate(Beam PrimaryObject)
+        /// <param name="SecondaryObject"></param>
+        private static void CreateBasePlate(ModelObject PrimaryObject, ModelObject SecondaryObject)
         {
-            Detail BasePlate = new Detail();
+            Connection BasePlate = new Connection();
 
             BasePlate.Name = "Stiffened Base Plate";
             BasePlate.Number = 1014;
             BasePlate.LoadAttributesFromFile("standard");
-            BasePlate.AutoDirectionType = AutoDirectionTypeEnum.AUTODIR_FROM_ATTRIBUTE_FILE;
-            BasePlate.DetailType = DetailTypeEnum.END;
+            BasePlate.UpVector = new Vector(0, 0, 1000);
+            BasePlate.PositionType = PositionTypeEnum.COLLISION_PLANE;
 
             BasePlate.SetPrimaryObject(PrimaryObject);
-            BasePlate.SetReferencePoint(PrimaryObject.StartPoint);
+            BasePlate.SetSecondaryObject(SecondaryObject);
             BasePlate.SetAttribute("cut", 1);  //Enable anchor rods
 
             if (!BasePlate.Insert())
             {
                 Console.WriteLine("Insertion of stiffened base plate failed.");
+            }
+        }
+
+/*-----------------------------------------*
+ * Exercises 5-7 under this                 *
+ * ----------------------------------------*/
+        /// <summary>
+        /// Callback function to show the profile selection dialog. The value set in 
+        /// ColumnsProfileTextBox is set as SelectedProfile to be selected in the 
+        /// dialog (if it exists).
+        /// </summary>
+        private void profileCatalog1_SelectClicked(object sender, EventArgs e)
+        {
+            profileCatalog1.SelectedProfile = ColumnsProfileTextBox.Text;
+        }
+
+
+        /// <summary>
+        /// Callback function to show the value selected in the profile selection form.
+        /// </summary>
+        private void profileCatalog1_SelectionDone(object sender, EventArgs e)
+        {
+            SetAttributeValue(ColumnsProfileTextBox, profileCatalog1.SelectedProfile);
+        }
+
+        /// <summary>
+        /// Callback function to show the reinforcement selection dialog. The value set in 
+        /// text box will be selected in the dialog (if it exists).
+        /// </summary>
+        private void reinforcementCatalog1_SelectClicked(object sender, EventArgs e)
+        {
+            reinforcementCatalog1.SelectedRebarSize = SizeTextBox.Text;
+            reinforcementCatalog1.SelectedRebarGrade = GradeTextBox.Text;
+            reinforcementCatalog1.SelectedRebarBendingRadius = TSD.Distance.Parse(BendingRadiusTextBox.Text, CultureInfo.InvariantCulture).Millimeters;
+        }
+
+        /// <summary>
+        /// Callback function to show the values selected in the reinforcement
+        /// selection form.
+        /// </summary>
+        private void reinforcementCatalog1_SelectionDone(object sender, EventArgs e)
+        {
+            SetAttributeValue(SizeTextBox, reinforcementCatalog1.SelectedRebarSize);
+            SetAttributeValue(GradeTextBox, reinforcementCatalog1.SelectedRebarGrade);
+            SetAttributeValue(BendingRadiusTextBox, new TSD.Distance(reinforcementCatalog1.SelectedRebarBendingRadius));
+        }
+
+        /// <summary>
+        /// List of filtered materials (just steel ones) is shown in the material selection form.
+        /// </summary>
+        private void SelectMaterialButton_Click(object sender, EventArgs e)
+        {
+            MaterialSelectionForm SelectionForm = new MaterialSelectionForm(SteelMaterials, ColumnsMaterialTextBox.Text);
+
+            SelectionForm.ShowDialog();
+
+            if(SelectionForm.DialogResult == DialogResult.OK)
+                SetAttributeValue(ColumnsMaterialTextBox, SelectionForm.SelectedMaterial);
+
+        }
+
+        /// <summary>
+        /// When the Form is loaded the the steel materials are loaded from the catalog
+        /// </summary>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            //Set the value for the footings
+            FootingSize.Text = "1500";
+
+            //Create a filtered list of steel materials available in the material catalog
+            CatalogHandler CatalogHandler = new CatalogHandler();
+
+            MaterialItemEnumerator Materials = CatalogHandler.GetMaterialItems();
+
+            while(Materials.MoveNext())
+            {
+                MaterialItem Item = Materials.Current;
+
+                if(Item.Type == MaterialItem.MaterialItemTypeEnum.MATERIAL_STEEL)
+                {
+                    SteelMaterials.Add(Item);
+                }
+            }
+        }
+/*-----------------------------------------*
+ * Add template form                       *
+ * ----------------------------------------*/
+
+        /// <summary>
+        /// Shows the CreateDialog.
+        /// </summary>
+        private void CreateButton_Click(object sender, EventArgs e)
+        {
+            CreateForm TeklaCreateDialog = new CreateForm();
+            TeklaCreateDialog.Show();
+        }
+/*-----------------------------------------*
+ * Exercise 8 under this                 *
+ * ----------------------------------------*/
+
+        /// <summary>
+        /// Callback for the "Edit drawing" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditDrawingButton_Click(object sender, EventArgs e)
+        {
+            EditOpenedDrawing();
+        }
+
+        /// <summary>
+        /// Edit opened drawing, take string from dialog and write it under every view in the drawing.
+        /// Draws also rectangle around the text string.
+        /// </summary>
+        private void EditOpenedDrawing()
+        {
+            if(MyDrawingHandler.GetConnectionStatus())
+            {
+                Drawing MyDrawing = MyDrawingHandler.GetActiveDrawing();
+
+                ContainerView Sheet = MyDrawing.GetSheet();
+                DrawingObjectEnumerator MyViewEnumerator = Sheet.GetViews();
+
+                //Looping through views in the drawing
+                while(MyViewEnumerator.MoveNext())
+                {
+                    View CurrentView = MyViewEnumerator.Current as View; //If ViewBase used instead of View, then multidrawing's container views would work here also
+
+                    if (CurrentView != null)
+                    {
+                        //Getting bounding box for the view frame and calculating then the CenterPoint under it
+                        RectangleBoundingBox ViewAABB = CurrentView.GetAxisAlignedBoundingBox();
+                        Point CenterPoint = new Point();
+                        CenterPoint.X = ViewAABB.LowerLeft.X + (ViewAABB.LowerRight.X - ViewAABB.LowerLeft.X)/2.0;
+                        CenterPoint.Y = ViewAABB.LowerLeft.Y - 5.0;  //5.0 mm below the view's bounding box
+
+                        Text MyViewTitle = new Text(Sheet, CenterPoint, ViewTitle.Text, new Text.TextAttributes());
+                        if (!MyViewTitle.Insert())
+                        {
+                            Console.WriteLine("Insert failed.");
+                        }
+                        else
+                        {
+                            RectangleBoundingBox TitleAABB = MyViewTitle.GetAxisAlignedBoundingBox();
+                            Rectangle myBox = new Rectangle(Sheet, TitleAABB.LowerLeft, TitleAABB.UpperRight);
+                            myBox.Insert();
+                        }
+
+                    }
+                }
+                MyDrawing.CommitChanges();
             }
         }
     }

@@ -6,9 +6,9 @@ using Tekla.Structures.Geometry3d;
 
 namespace Exercise
 {
-    public partial class Form2 : Form
+    public partial class Form1 : Form
     {
-        public Form2()
+        public Form1()
         {
             InitializeComponent();
             MyModel = new Model();
@@ -75,7 +75,7 @@ namespace Exercise
 
             PadFooting.Name = "FOOTING";
             PadFooting.Profile.ProfileString = FootingSize + "*" + FootingSize; //"1500*1500";
-            PadFooting.Material.MaterialString = "C50/60";
+            PadFooting.Material.MaterialString = "K30-2";
             PadFooting.Class = "8";
             PadFooting.StartPoint.X = PositionX;
             PadFooting.StartPoint.Y = PositionY;
@@ -96,7 +96,7 @@ namespace Exercise
 
         /// <summary>
         /// Method that creates a column to given position and returns the created column.
-        /// The created column is recognized as beam in Tekla Structures.
+        /// The created pad footing is recognized as beam in Tekla Structures.
         /// </summary>
         /// <param name="PositionX">X-coordination of the position</param>
         /// <param name="PositionY">Y-coordination of the position</param>
@@ -106,7 +106,7 @@ namespace Exercise
             Beam Column = new Beam();
 
             Column.Name = "COLUMN";
-            Column.Profile.ProfileString = "HEA300";
+            Column.Profile.ProfileString = "HEA400";
             Column.Material.MaterialString = "S235JR";
             Column.Class = "2";
             Column.StartPoint.X = PositionX;

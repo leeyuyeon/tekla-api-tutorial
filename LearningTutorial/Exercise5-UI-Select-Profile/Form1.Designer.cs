@@ -1,6 +1,6 @@
 namespace Exercise
 {
-    partial class Form5
+    partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -59,8 +59,6 @@ namespace Exercise
             this.FootingSize.Name = "FootingSize";
             this.FootingSize.Size = new System.Drawing.Size(58, 20);
             this.FootingSize.TabIndex = 1;
-            this.FootingSize.Text = "1500";
-            this.FootingSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // SizeLabel1
             // 
@@ -93,7 +91,6 @@ namespace Exercise
             this.structuresExtender.SetAttributeTypeName(this.profileCatalog1, null);
             this.profileCatalog1.BackColor = System.Drawing.Color.Transparent;
             this.structuresExtender.SetBindPropertyName(this.profileCatalog1, null);
-            this.profileCatalog1.ButtonText = "albl_Select__";
             this.profileCatalog1.Location = new System.Drawing.Point(160, 55);
             this.profileCatalog1.Name = "profileCatalog1";
             this.profileCatalog1.SelectedProfile = "";
@@ -111,8 +108,6 @@ namespace Exercise
             this.ColumnsProfileTextBox.Name = "ColumnsProfileTextBox";
             this.ColumnsProfileTextBox.Size = new System.Drawing.Size(100, 20);
             this.ColumnsProfileTextBox.TabIndex = 5;
-            this.ColumnsProfileTextBox.Text = "HEA300";
-            this.ColumnsProfileTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label1
             // 
@@ -126,14 +121,14 @@ namespace Exercise
             this.label1.TabIndex = 6;
             this.label1.Text = "Profile";
             // 
-            // Form5
+            // Form1
             // 
             this.structuresExtender.SetAttributeName(this, null);
             this.structuresExtender.SetAttributeTypeName(this, null);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.structuresExtender.SetBindPropertyName(this, null);
-            this.ClientSize = new System.Drawing.Size(425, 201);
+            this.ClientSize = new System.Drawing.Size(404, 205);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ColumnsProfileTextBox);
             this.Controls.Add(this.profileCatalog1);
@@ -141,8 +136,8 @@ namespace Exercise
             this.Controls.Add(this.SizeLabel1);
             this.Controls.Add(this.FootingSize);
             this.Controls.Add(this.CreatePadFootingButton);
-            this.Name = "Form5";
-            this.Text = "API Exercise 5";
+            this.Name = "Form1";
+            this.Text = "DotNetExample";
             this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();

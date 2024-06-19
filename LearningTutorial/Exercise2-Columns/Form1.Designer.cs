@@ -1,6 +1,6 @@
 namespace Exercise
 {
-    partial class Form2
+    partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -41,15 +41,14 @@ namespace Exercise
             this.CreatePadFootingButton.UseVisualStyleBackColor = true;
             this.CreatePadFootingButton.Click += new System.EventHandler(this.CreatePadFootings);
             // 
-            // Form2
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 161);
+            this.ClientSize = new System.Drawing.Size(202, 123);
             this.Controls.Add(this.CreatePadFootingButton);
-            this.Name = "Form2";
-            this.Text = "API Exercise 2";
-            this.TopMost = true;
+            this.Name = "Form1";
+            this.Text = "DotNetExample";
             this.ResumeLayout(false);
 
         }

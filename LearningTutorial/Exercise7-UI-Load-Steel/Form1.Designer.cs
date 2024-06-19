@@ -1,6 +1,6 @@
 namespace Exercise
 {
-    partial class Form7
+    partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -219,7 +219,6 @@ namespace Exercise
             this.structuresExtender.SetAttributeTypeName(this.reinforcementCatalog1, null);
             this.reinforcementCatalog1.BackColor = System.Drawing.Color.Transparent;
             this.structuresExtender.SetBindPropertyName(this.reinforcementCatalog1, null);
-            this.reinforcementCatalog1.ButtonText = "albl_Select__";
             this.reinforcementCatalog1.Location = new System.Drawing.Point(247, 48);
             this.reinforcementCatalog1.Name = "reinforcementCatalog1";
             this.reinforcementCatalog1.SelectedRebarBendingRadius = 0D;
@@ -290,7 +289,6 @@ namespace Exercise
             this.structuresExtender.SetAttributeTypeName(this.profileCatalog1, null);
             this.profileCatalog1.BackColor = System.Drawing.Color.Transparent;
             this.structuresExtender.SetBindPropertyName(this.profileCatalog1, null);
-            this.profileCatalog1.ButtonText = "albl_Select__";
             this.profileCatalog1.Location = new System.Drawing.Point(247, 19);
             this.profileCatalog1.Name = "profileCatalog1";
             this.profileCatalog1.SelectedProfile = "";
@@ -328,7 +326,7 @@ namespace Exercise
             this.saveLoad1.TabIndex = 14;
             this.saveLoad1.UserDefinedHelpFilePath = null;
             // 
-            // Form7
+            // Form1
             // 
             this.structuresExtender.SetAttributeName(this, null);
             this.structuresExtender.SetAttributeTypeName(this, null);
@@ -343,9 +341,8 @@ namespace Exercise
             this.Controls.Add(this.SizeLabel1);
             this.Controls.Add(this.FootingSize);
             this.Controls.Add(this.CreatePadFootingButton);
-            this.Name = "Form7";
-            this.Text = "API Exercise 7";
-            this.TopMost = true;
+            this.Name = "Form1";
+            this.Text = "DotNetExample";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

@@ -1,29 +1,19 @@
 using System;
-using System.Globalization;
+using System.Windows.Forms;
 
 using Tekla.Structures;
-using Tekla.Structures.Dialog;
 using Tekla.Structures.Model;
 using Tekla.Structures.Geometry3d;
-using TSD = Tekla.Structures.Datatype;
-
 
 namespace Exercise
 {
-    public partial class Form6 : ApplicationFormBase
+    public partial class Form1 : Form
     {
-        public Form6()
+        public Form1()
         {
-
             InitializeComponent();
-            base.InitializeForm();
-            SetAttributeValue(FootingSize, "1500");
-            SetAttributeValue(ColumnsProfileTextBox, "HEA300");
-            SetAttributeValue(SizeTextBox, "12");
-            SetAttributeValue(GradeTextBox, "A500HW");
-            SetAttributeValue(BendingRadiusTextBox, new TSD.Distance(144.0));
+            FootingSize.Text = "1500";
             MyModel = new Model();
-
         }
 
         private readonly Model MyModel;
@@ -38,13 +28,13 @@ namespace Exercise
             if (MyModel.GetConnectionStatus())
             {
                 // Loop through X-axis  (these loops should be changed to match current grid)
-                for (double PositionX = 0.0; PositionX <= 12000.0; PositionX += 3000.0)
+                 for (double PositionX = 0.0; PositionX <= 12000.0; PositionX += 3000.0)
                 {
                     // In first and in last line
                     if (PositionX.Equals(0.0) || PositionX.Equals(12000.0))
                     {
                         // Loop through Y-axis to get pad footings on the longer sides of the grid
-                        for (double PositionY = 0.0; PositionY <= 30000.0; PositionY += 6000.0)
+                         for (double PositionY = 0.0; PositionY <= 30000.0; PositionY += 6000.0)
                         {
                             CreateFootingAndColumn(PositionX, PositionY);
                         }
@@ -80,9 +70,9 @@ namespace Exercise
                         ModelObjectEnumerator BeamChildren = MyBeam.GetChildren();
                         bool HasRebars = false;
 
-                        while (BeamChildren.MoveNext())
+                        while(BeamChildren.MoveNext())
                         {
-                            if (BeamChildren.Current is Reinforcement)
+                            if(BeamChildren.Current is Reinforcement)
                             {
                                 HasRebars = true;
                             }
@@ -125,7 +115,7 @@ namespace Exercise
             RebarPolygon1.Points.Add(new Point(PositionX - MyFootingSize / 2.0, PositionY + MyFootingSize / 2.0, 0));
             RebarPolygon1.Points.Add(new Point(PositionX - MyFootingSize / 2.0, PositionY - MyFootingSize / 2.0, 0));
             Rebar.Polygons.Add(RebarPolygon1);
-
+            
             //or calculate by rebar's solid's Axis Aligned Bounding Box
             //Rebar.Polygons.Add(GetPolygonBySolidsAABB(PadFooting as Beam));
 
@@ -142,14 +132,10 @@ namespace Exercise
             Rebar.StartPointOffsetValue = 20.0;
             Rebar.Class = 3;
             Rebar.Name = "FootingRebar";
-            Rebar.Grade = GradeTextBox.Text;
-            Rebar.Size = SizeTextBox.Text;
+            Rebar.Grade = "A500HW";
+            Rebar.Size = "12";
 
-            char[] Separator = { ' ' };
-            string[] Radiuses = BendingRadiusTextBox.Text.Split(Separator, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string Item in Radiuses)
-                Rebar.RadiusValues.Add(Convert.ToDouble(Item));
-
+            Rebar.RadiusValues.Add(40.0);
             Rebar.SpacingType = BaseRebarGroup.RebarGroupSpacingTypeEnum.SPACING_TYPE_TARGET_SPACE;
             Rebar.Spacings.Add(100.0);
             Rebar.ExcludeType = BaseRebarGroup.ExcludeTypeEnum.EXCLUDE_TYPE_BOTH;
@@ -208,8 +194,8 @@ namespace Exercise
         private void CreateFootingAndColumn(double PositionX, double PositionY)
         {
             ModelObject PadFooting = CreatePadFooting(PositionX, PositionY, double.Parse(FootingSize.Text));
-            Beam Column = CreateColumn(PositionX, PositionY);
-            CreateBasePlate(Column);
+            ModelObject Column = CreateColumn(PositionX, PositionY);
+            CreateBasePlate(Column, PadFooting);  
         }
 
         /// <summary>
@@ -226,7 +212,7 @@ namespace Exercise
 
             PadFooting.Name = "FOOTING";
             PadFooting.Profile.ProfileString = FootingSize + "*" + FootingSize; //"1500*1500";
-            PadFooting.Material.MaterialString = "C50/60";
+            PadFooting.Material.MaterialString = "K30-2";
             PadFooting.Class = "8";
             PadFooting.StartPoint.X = PositionX;
             PadFooting.StartPoint.Y = PositionY;
@@ -247,17 +233,17 @@ namespace Exercise
 
         /// <summary>
         /// Method that creates a column to given position and returns the created column.
-        /// The created column is recognized as beam in Tekla Structures.
+        /// The created pad footing is recognized as beam in Tekla Structures.
         /// </summary>
         /// <param name="PositionX">X-coordination of the position</param>
         /// <param name="PositionY">Y-coordination of the position</param>
         /// <returns></returns>
-        private Beam CreateColumn(double PositionX, double PositionY)
+        private static ModelObject CreateColumn(double PositionX, double PositionY)
         {
             Beam Column = new Beam();
 
             Column.Name = "COLUMN";
-            Column.Profile.ProfileString = ColumnsProfileTextBox.Text;
+            Column.Profile.ProfileString = "HEA400";
             Column.Material.MaterialString = "S235JR";
             Column.Class = "2";
             Column.StartPoint.X = PositionX;
@@ -278,21 +264,22 @@ namespace Exercise
         }
 
         /// <summary>
-        /// Method that creates detail (1014)
+        /// Method that creates connection (1004) between two given objects.
         /// </summary>
         /// <param name="PrimaryObject"></param>
-        private static void CreateBasePlate(Beam PrimaryObject)
+        /// <param name="SecondaryObject"></param>
+        private static void CreateBasePlate(ModelObject PrimaryObject, ModelObject SecondaryObject)
         {
-            Detail BasePlate = new Detail();
+            Connection BasePlate = new Connection();
 
             BasePlate.Name = "Stiffened Base Plate";
             BasePlate.Number = 1014;
             BasePlate.LoadAttributesFromFile("standard");
-            BasePlate.AutoDirectionType = AutoDirectionTypeEnum.AUTODIR_FROM_ATTRIBUTE_FILE;
-            BasePlate.DetailType = DetailTypeEnum.END;
+            BasePlate.UpVector = new Vector(0, 0, 1000);
+            BasePlate.PositionType = PositionTypeEnum.COLLISION_PLANE;
 
             BasePlate.SetPrimaryObject(PrimaryObject);
-            BasePlate.SetReferencePoint(PrimaryObject.StartPoint);
+            BasePlate.SetSecondaryObject(SecondaryObject);
             BasePlate.SetAttribute("cut", 1);  //Enable anchor rods
 
             if (!BasePlate.Insert())
@@ -300,52 +287,5 @@ namespace Exercise
                 Console.WriteLine("Insertion of stiffened base plate failed.");
             }
         }
-
-        /*-----------------------------------------*
-        * Exercise 5-6 under this                 *
-        * ----------------------------------------*/
-        /// <summary>
-        /// Callback function to show the profile selection dialog. The value set in 
-        /// ColumnsProfileTextBox is set as SelectedProfile to be selected in the 
-        /// dialog (if it exists).
-        /// </summary>
-
-        private void profileCatalog1_SelectClicked(object sender, EventArgs e)
-        {
-            profileCatalog1.SelectedProfile = ColumnsProfileTextBox.Text;
-        }
-
-        /// <summary>
-        /// Callback function to show the value selected in the profile selection form.
-        /// </summary>
-
-        private void profileCatalog1_SelectionDone(object sender, EventArgs e)
-        {
-            SetAttributeValue(ColumnsProfileTextBox, profileCatalog1.SelectedProfile);
-        }
-
-        /// <summary>
-        /// Callback function to show the reinforcement selection dialog. The value set in 
-        /// text box will be selected in the dialog (if it exists).
-        /// </summary>
-        private void reinforcementCatalog1_SelectClicked(object sender, EventArgs e)
-        {
-            reinforcementCatalog1.SelectedRebarSize = SizeTextBox.Text;
-            reinforcementCatalog1.SelectedRebarGrade = GradeTextBox.Text;
-            reinforcementCatalog1.SelectedRebarBendingRadius = TSD.Distance.Parse(BendingRadiusTextBox.Text, CultureInfo.InvariantCulture).Millimeters;
-        }
-
-        /// <summary>
-        /// Callback function to show the values selected in the reinforcement
-        /// selection form.
-        /// </summary>
-        private void reinforcementCatalog1_SelectionDone(object sender, EventArgs e)
-        {
-            SetAttributeValue(SizeTextBox, reinforcementCatalog1.SelectedRebarSize);
-            SetAttributeValue(GradeTextBox, reinforcementCatalog1.SelectedRebarGrade);
-            SetAttributeValue(BendingRadiusTextBox, new TSD.Distance(reinforcementCatalog1.SelectedRebarBendingRadius));
-        }
-
-
     }
 }

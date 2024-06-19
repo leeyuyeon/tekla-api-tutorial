@@ -1,6 +1,6 @@
 namespace Exercise
 {
-    partial class Form6
+    partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -70,7 +70,6 @@ namespace Exercise
             this.FootingSize.Name = "FootingSize";
             this.FootingSize.Size = new System.Drawing.Size(58, 20);
             this.FootingSize.TabIndex = 1;
-            this.FootingSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.FootingSize.TextChanged += new System.EventHandler(this.FootingSize_TextChanged);
             // 
             // SizeLabel1
@@ -104,7 +103,6 @@ namespace Exercise
             this.structuresExtender.SetAttributeTypeName(this.profileCatalog1, null);
             this.profileCatalog1.BackColor = System.Drawing.Color.Transparent;
             this.structuresExtender.SetBindPropertyName(this.profileCatalog1, null);
-            this.profileCatalog1.ButtonText = "albl_Select__";
             this.profileCatalog1.Location = new System.Drawing.Point(203, 32);
             this.profileCatalog1.Name = "profileCatalog1";
             this.profileCatalog1.SelectedProfile = "";
@@ -122,8 +120,6 @@ namespace Exercise
             this.ColumnsProfileTextBox.Name = "ColumnsProfileTextBox";
             this.ColumnsProfileTextBox.Size = new System.Drawing.Size(100, 20);
             this.ColumnsProfileTextBox.TabIndex = 5;
-            this.ColumnsProfileTextBox.Text = "HEA300";
-            this.ColumnsProfileTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label1
             // 
@@ -143,7 +139,6 @@ namespace Exercise
             this.structuresExtender.SetAttributeTypeName(this.reinforcementCatalog1, null);
             this.reinforcementCatalog1.BackColor = System.Drawing.Color.Transparent;
             this.structuresExtender.SetBindPropertyName(this.reinforcementCatalog1, null);
-            this.reinforcementCatalog1.ButtonText = "albl_Select__";
             this.reinforcementCatalog1.Location = new System.Drawing.Point(203, 48);
             this.reinforcementCatalog1.Name = "reinforcementCatalog1";
             this.reinforcementCatalog1.SelectedRebarBendingRadius = 0D;
@@ -163,7 +158,6 @@ namespace Exercise
             this.SizeTextBox.Name = "SizeTextBox";
             this.SizeTextBox.Size = new System.Drawing.Size(100, 20);
             this.SizeTextBox.TabIndex = 8;
-            this.SizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // GradeTextBox
             // 
@@ -174,7 +168,6 @@ namespace Exercise
             this.GradeTextBox.Name = "GradeTextBox";
             this.GradeTextBox.Size = new System.Drawing.Size(100, 20);
             this.GradeTextBox.TabIndex = 9;
-            this.GradeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // BendingRadiusTextBox
             // 
@@ -185,7 +178,6 @@ namespace Exercise
             this.BendingRadiusTextBox.Name = "BendingRadiusTextBox";
             this.BendingRadiusTextBox.Size = new System.Drawing.Size(100, 20);
             this.BendingRadiusTextBox.TabIndex = 10;
-            this.BendingRadiusTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // groupBox1
             // 
@@ -257,23 +249,22 @@ namespace Exercise
             this.label4.TabIndex = 15;
             this.label4.Text = "Bending Radius";
             // 
-            // Form6
+            // Form1
             // 
             this.structuresExtender.SetAttributeName(this, null);
             this.structuresExtender.SetAttributeTypeName(this, null);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.structuresExtender.SetBindPropertyName(this, null);
-            this.ClientSize = new System.Drawing.Size(497, 230);
+            this.ClientSize = new System.Drawing.Size(491, 225);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.SizeLabel1);
             this.Controls.Add(this.FootingSize);
             this.Controls.Add(this.CreatePadFootingButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
-            this.Name = "Form6";
-            this.Text = "API Exercise 6";
-            this.TopMost = true;
+            this.Name = "Form1";
+            this.Text = "DotNetExample";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

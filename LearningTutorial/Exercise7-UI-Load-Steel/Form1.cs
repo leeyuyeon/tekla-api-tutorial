@@ -7,39 +7,26 @@ using Tekla.Structures;
 using Tekla.Structures.Catalogs;
 using Tekla.Structures.Dialog;
 using Tekla.Structures.Dialog.UIControls;
-using Tekla.Structures.Drawing;
 using Tekla.Structures.Model;
 using Tekla.Structures.Geometry3d;
 using TSD = Tekla.Structures.Datatype;
 
-using Connection=Tekla.Structures.Model.Connection;
-using ModelObject=Tekla.Structures.Model.ModelObject;
-using Polygon=Tekla.Structures.Model.Polygon;
-using View=Tekla.Structures.Drawing.View;
-
 namespace Exercise
 {
-    public partial class Form9 : ApplicationFormBase
+    public partial class Form1 : ApplicationFormBase
     {
-        public Form9()
+        public Form1()
         {
             InitializeComponent();
             base.InitializeForm();
-            SetAttributeValue(FootingSize, "1500");
-            SetAttributeValue(ColumnsProfileTextBox, "HEA300");
-            SetAttributeValue(SizeTextBox, "12");
-            SetAttributeValue(GradeTextBox, "A500HW");
-            SetAttributeValue(BendingRadiusTextBox, new TSD.Distance(144.0));
-            SetAttributeValue(ColumnsMaterialTextBox, "S235JR");
+            FootingSize.Text = "1500";
             MyModel = new Model();
-            SteelMaterials = new List<MaterialItem>();
 
-            MyDrawingHandler = new DrawingHandler();
+            SteelMaterials = new List<MaterialItem>();
         }
 
         private readonly Model MyModel;
         private readonly List<MaterialItem> SteelMaterials;
-        private readonly DrawingHandler MyDrawingHandler;
 
         /// <summary>
         /// Callback function to create objects on corrent places.
@@ -94,12 +81,12 @@ namespace Exercise
                         bool HasRebars = false;
 
                         while(BeamChildren.MoveNext())
-                    {
+                        {
                             if(BeamChildren.Current is Reinforcement)
                             {
                                 HasRebars = true;
-                    }
-                }
+                            }
+                        }
 
                         if (HasRebars)
                         {
@@ -190,7 +177,7 @@ namespace Exercise
         /// </summary>
         /// <param name="InputObject"></param>
         /// <returns></returns>
-        private Polygon GetPolygonBySolidsAABB(Tekla.Structures.Model.Part InputObject)
+        private Polygon GetPolygonBySolidsAABB(Part InputObject)
         {
             Polygon Result = new Polygon();
 
@@ -202,6 +189,11 @@ namespace Exercise
             Result.Points.Add(new Point(BeamSolid.MaximumPoint.X, BeamSolid.MaximumPoint.Y, 0));
 
             return Result;
+        }
+
+        private void FootingSize_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -217,8 +209,8 @@ namespace Exercise
         private void CreateFootingAndColumn(double PositionX, double PositionY)
         {
             ModelObject PadFooting = CreatePadFooting(PositionX, PositionY, double.Parse(FootingSize.Text));
-            Beam Column = CreateColumn(PositionX, PositionY);
-            CreateBasePlate(Column);
+            ModelObject Column = CreateColumn(PositionX, PositionY);
+            CreateBasePlate(Column, PadFooting);  
         }
 
         /// <summary>
@@ -235,7 +227,7 @@ namespace Exercise
 
             PadFooting.Name = "FOOTING";
             PadFooting.Profile.ProfileString = FootingSize + "*" + FootingSize; //"1500*1500";
-            PadFooting.Material.MaterialString = "C50/60";
+            PadFooting.Material.MaterialString = "K30-2";
             PadFooting.Class = "8";
             PadFooting.StartPoint.X = PositionX;
             PadFooting.StartPoint.Y = PositionY;
@@ -255,13 +247,13 @@ namespace Exercise
         }
 
         /// <summary>
-        ///  Method that creates a column to given position and returns the created column
-        /// The created column is recognized as beam in Tekla Structures.
+        /// Method that creates a column to given position and returns the created column.
+        /// The created pad footing is recognized as beam in Tekla Structures.
         /// </summary>
         /// <param name="PositionX">X-coordination of the position</param>
         /// <param name="PositionY">Y-coordination of the position</param>
         /// <returns></returns>
-        private Beam CreateColumn(double PositionX, double PositionY)
+        private ModelObject CreateColumn(double PositionX, double PositionY)
         {
             Beam Column = new Beam();
 
@@ -287,21 +279,22 @@ namespace Exercise
         }
 
         /// <summary>
-        /// Method that creates detail (1014)
+        /// Method that creates connection (1004) between two given objects.
         /// </summary>
         /// <param name="PrimaryObject"></param>
-        private static void CreateBasePlate(Beam PrimaryObject)
+        /// <param name="SecondaryObject"></param>
+        private static void CreateBasePlate(ModelObject PrimaryObject, ModelObject SecondaryObject)
         {
-            Detail BasePlate = new Detail();
+            Connection BasePlate = new Connection();
 
             BasePlate.Name = "Stiffened Base Plate";
             BasePlate.Number = 1014;
             BasePlate.LoadAttributesFromFile("standard");
-            BasePlate.AutoDirectionType = AutoDirectionTypeEnum.AUTODIR_FROM_ATTRIBUTE_FILE;
-            BasePlate.DetailType = DetailTypeEnum.END;
+            BasePlate.UpVector = new Vector(0, 0, 1000);
+            BasePlate.PositionType = PositionTypeEnum.COLLISION_PLANE;
 
             BasePlate.SetPrimaryObject(PrimaryObject);
-            BasePlate.SetReferencePoint(PrimaryObject.StartPoint);
+            BasePlate.SetSecondaryObject(SecondaryObject);
             BasePlate.SetAttribute("cut", 1);  //Enable anchor rods
 
             if (!BasePlate.Insert())
@@ -310,9 +303,9 @@ namespace Exercise
             }
         }
 
-        /*-----------------------------------------*
-         * Exercises 5-7 under this                *
-         * ----------------------------------------*/
+/*-----------------------------------------*
+ * Exercise 5-7 under this                 *
+ * ----------------------------------------*/
         /// <summary>
         /// Callback function to show the profile selection dialog. The value set in 
         /// ColumnsProfileTextBox is set as SelectedProfile to be selected in the 
@@ -374,7 +367,7 @@ namespace Exercise
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            AddDrawingsToListView();
+
             //Set the value for the footings
             FootingSize.Text = "1500";
 
@@ -393,158 +386,5 @@ namespace Exercise
                 }
             }
         }
-/*-----------------------------------------*
- * Add template form                       *
- * ----------------------------------------*/
-
-        /// <summary>
-        /// Shows the CreateDialog.
-        /// </summary>
-        private void CreateButton_Click(object sender, EventArgs e)
-        {
-            CreateForm TeklaCreateDialog = new CreateForm();
-            TeklaCreateDialog.Show();
-        }
-/*-----------------------------------------*
- * Exercise 8 under this                   *
- * ----------------------------------------*/
-
-        /// <summary>
-        /// Callback for the "Edit drawing" button.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EditDrawingButton_Click(object sender, EventArgs e)
-        {
-            EditOpenedDrawing();
-        }
-
-        /// <summary>
-        /// Edit opened drawing, take string from dialog and write it under every view in the drawing.
-        /// Draws also rectangle around the text string.
-        /// </summary>
-        private void EditOpenedDrawing()
-        {
-            if(MyDrawingHandler.GetConnectionStatus())
-            {
-                Drawing MyDrawing = MyDrawingHandler.GetActiveDrawing();
-
-                ContainerView Sheet = MyDrawing.GetSheet();
-                DrawingObjectEnumerator MyViewEnumerator = Sheet.GetViews();
-
-                //Looping through views in the drawing
-                while(MyViewEnumerator.MoveNext())
-                {
-                    View CurrentView = MyViewEnumerator.Current as View; //If ViewBase used instead of View, then multidrawing's container views would work here also
-
-                    if (CurrentView != null)
-                    {
-                        //Getting bounding box for the view frame and calculating then the CenterPoint under it
-                        RectangleBoundingBox ViewAABB = CurrentView.GetAxisAlignedBoundingBox();
-                        Point CenterPoint = new Point();
-                        CenterPoint.X = ViewAABB.LowerLeft.X + (ViewAABB.LowerRight.X - ViewAABB.LowerLeft.X)/2.0;
-                        CenterPoint.Y = ViewAABB.LowerLeft.Y - 5.0;  //5.0 mm below the view's bounding box
-
-                        Text MyViewTitle = new Text(Sheet, CenterPoint, ViewTitle.Text, new Text.TextAttributes());
-                        if (!MyViewTitle.Insert())
-                        {
-                            Console.WriteLine("Insert failed.");
-                        }
-                        else
-                        {
-                            RectangleBoundingBox TitleAABB = MyViewTitle.GetAxisAlignedBoundingBox();
-                            Rectangle myBox = new Rectangle(Sheet, TitleAABB.LowerLeft, TitleAABB.UpperRight);
-                            myBox.Insert();
-                        }
-
-                    }
-                }
-                MyDrawing.CommitChanges();
-            }
-        }
-/*-----------------------------------------*
- * Exercise 9 under this                  *
- * ----------------------------------------*/
-
-        /// <summary>
-        /// Opens selected drawing in Tekla Structures, ie. sets it as active drawing.
-        /// This is callback function for opening button.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenDrawingButton_Click(object sender, EventArgs e)
-        {
-            if (MyDrawingHandler.GetConnectionStatus())
-            {
-                if (listView1.SelectedItems != null && listView1.SelectedItems.Count > 0 && 
-                    listView1.SelectedItems[0] != null && listView1.SelectedItems[0].Tag is Drawing)
-                {
-                    if (!MyDrawingHandler.SetActiveDrawing(listView1.SelectedItems[0].Tag as Drawing))
-                    {
-                        MessageBox.Show("Drawing is not up to date, please update it before opening.");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns the type of the drawing in character style
-        /// </summary>
-        /// <param name="DrawingInstance"></param>
-        /// <returns></returns>
-        private string GetDrawingTypeCharacter(Drawing DrawingInstance)
-        {
-            string Result = "U"; // Unknown drawing
-
-            if (DrawingInstance is GADrawing)
-            {
-                Result = "G";
-            }
-            else if (DrawingInstance is AssemblyDrawing)
-            {
-                Result = "A";
-            }
-            else if (DrawingInstance is CastUnitDrawing)
-            {
-                Result = "C";
-            }
-            else if (DrawingInstance is MultiDrawing)
-            {
-                Result = "M";
-            }
-            else if (DrawingInstance is SinglePartDrawing)
-            {
-                Result = "W";
-            }
-
-            return Result;
-        }
-
-        /// <summary>
-        /// When application starts, this gets the drawings from Tekla Structures and adds them to the list
-        /// </summary>
-        private void AddDrawingsToListView()
-        {
-            if (MyDrawingHandler.GetConnectionStatus())
-            {
-                int Index = 0;
-                DrawingEnumerator MyDrawingEnumerator = MyDrawingHandler.GetDrawings();
-
-                while (MyDrawingEnumerator.MoveNext())
-                {
-                    Drawing CurrentDrawing = MyDrawingEnumerator.Current;
-                    ListViewItem Item = new ListViewItem();
-
-                    Item.Tag = CurrentDrawing;
-                    Item.Text = Index + " " + GetDrawingTypeCharacter(CurrentDrawing) + " - " + CurrentDrawing.Mark;
-
-                    listView1.Items.Add(Item);
-                    Index++;
-                }
-            }
-
-        }
-
-
     }
 }
