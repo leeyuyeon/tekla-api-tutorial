@@ -28,28 +28,30 @@ namespace Exercise
         /// </summary>
         private void InitializeComponent()
         {
-            this.CreatePadFootingButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            // 
-            // CreatePadFootingButton
-            // 
-            this.CreatePadFootingButton.Location = new System.Drawing.Point(41, 27);
-            this.CreatePadFootingButton.Name = "CreatePadFootingButton";
-            this.CreatePadFootingButton.Size = new System.Drawing.Size(113, 23);
-            this.CreatePadFootingButton.TabIndex = 0;
-            this.CreatePadFootingButton.Text = "Create Pad Footings";
-            this.CreatePadFootingButton.UseVisualStyleBackColor = true;
-            this.CreatePadFootingButton.Click += new System.EventHandler(this.CreatePadFootings);
-            // 
-            // Form1
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(202, 123);
-            this.Controls.Add(this.CreatePadFootingButton);
-            this.Name = "Form1";
-            this.Text = "DotNetExample";
-            this.ResumeLayout(false);
+			this.CreatePadFootingButton = new System.Windows.Forms.Button();
+			this.SuspendLayout();
+			// 
+			// CreatePadFootingButton
+			// 
+			this.CreatePadFootingButton.Location = new System.Drawing.Point(68, 37);
+			this.CreatePadFootingButton.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+			this.CreatePadFootingButton.Name = "CreatePadFootingButton";
+			this.CreatePadFootingButton.Size = new System.Drawing.Size(188, 32);
+			this.CreatePadFootingButton.TabIndex = 0;
+			this.CreatePadFootingButton.Text = "Create Pad Footings";
+			this.CreatePadFootingButton.UseVisualStyleBackColor = true;
+			this.CreatePadFootingButton.Click += new System.EventHandler(this.CreatePadFootings);
+			// 
+			// Form1
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(337, 170);
+			this.Controls.Add(this.CreatePadFootingButton);
+			this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+			this.Name = "Form1";
+			this.Text = "DotNetExample";
+			this.ResumeLayout(false);
 
         }
 
